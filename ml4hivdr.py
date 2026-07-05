@@ -102,7 +102,7 @@ print("Starting Nested Cross-Validation Pipeline...\n")
 
 for model_name, model in models.items():
     print("="*80)
-    print(f"🧬 PROCESSING RUNS FOR ALGORITHM: {model_name}")
+    print(f"PROCESSING RUNS FOR ALGORITHM: {model_name}")
     print("="*80)
     
     fold_aucs = []
@@ -203,12 +203,12 @@ for model_name, model in models.items():
 # =====================================================================
 df_perf = pd.DataFrame(performance_records)
 df_perf.to_csv('detailed_fold_performance.csv', index=False)
-print("\n📝 Saved detailed fold metrics & tuning shapes to 'detailed_fold_performance.csv'")
+print("Saved detailed fold metrics & tuning shapes to 'detailed_fold_performance.csv'")
 
 if importance_records:
     df_imp = pd.DataFrame(importance_records)
     df_imp.to_csv('detailed_feature_importances.csv', index=False)
-    print("📝 Saved raw feature importances per fold to 'detailed_feature_importances.csv'")
+    print("Saved raw feature importances per fold to 'detailed_feature_importances.csv'")
 
 # =====================================================================
 # 5. PRINT AGGREGATED CONFUSION MATRICES
@@ -240,7 +240,7 @@ for model_name, data in roc_plotting_data.items():
 
 df_roc_export = pd.DataFrame(csv_export_dict)
 df_roc_export.to_csv('roc_curves_data.csv', index=False)
-print("📝 Successfully exported ROC coordinates to 'roc_curves_data.csv'\n")
+print("Successfully exported ROC coordinates to 'roc_curves_data.csv'\n")
 
 plt.plot([0, 1], [0, 1], linestyle='--', color='red', alpha=0.5)
 plt.xlabel('False Positive Rate (1 - Specificity)')
@@ -254,7 +254,7 @@ plt.show()
 # 7. OPTION A: TRAIN AND EXPORT FINALIZED MODELS FOR ALL ALGORITHMS
 # =====================================================================
 print("\n" + "="*70)
-print("🏆 FINAL COMPARATIVE PERFORMANCE LEADERBOARD (Mean AUROC)")
+print("FINAL COMPARATIVE PERFORMANCE LEADERBOARD (Mean AUROC)")
 print("="*70)
 sorted_leaderboard = sorted(model_performance_summary.items(), key=lambda x: x[1], reverse=True)
 for rank, (name, score) in enumerate(sorted_leaderboard, 1):
@@ -268,7 +268,7 @@ full_scaler = StandardScaler()
 X_full_scaled = full_scaler.fit_transform(X_matrix)
 
 # Run a final Lasso model on 100% of the data to get the absolute consensus features
-print("🧬 Running global Lasso selection to determine final consensus features...")
+print("Running global Lasso selection to determine final consensus features...")
 full_lasso_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 full_lasso = LassoCV(cv=full_lasso_cv, random_state=42, max_iter=5000)
 full_lasso.fit(X_full_scaled, y)
@@ -276,7 +276,7 @@ full_lasso.fit(X_full_scaled, y)
 full_features = np.where(full_lasso.coef_ != 0)[0]
 if len(full_features) == 0: 
     full_features = np.arange(n_features)
-    print("⚠️ Warning: Global Lasso zeroed out all features. Defaulting to all features.")
+    print("Warning: Global Lasso zeroed out all features. Defaulting to all features.")
 
 X_full_selected = X_full_scaled[:, full_features]
 
@@ -288,7 +288,7 @@ np.save('production_features_consensus.npy', full_features)
 
 # Train, optimize, and save every single model architecture
 for model_name, model in models.items():
-    print(f"📦 Finalizing architecture: {model_name}...")
+    print(f"Finalizing architecture: {model_name}...")
     
     # Final global tuning pass across 100% of the pruned matrix
     final_grid = GridSearchCV(
@@ -307,6 +307,4 @@ for model_name, model in models.items():
     clean_name = model_name.replace(" ", "_")
     model_filename = f'final_model_{clean_name}.pkl'
     joblib.dump(best_production_model, model_filename)
-    print(f"   💾 Successfully exported to '{model_filename}'\n")
-
-print("🎉 Complete! All architectures have been successfully written to disk as production artifacts.")
+    print(f"Successfully exported to '{model_filename}'\n")
